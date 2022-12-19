@@ -65,6 +65,7 @@ function attack()
     if target ~= nil then
         if target:getSector() ~= entity:getSector() then ai:moveToSector(target:getSector()) end
         ai:setTarget(target)
+        ai:moveToEntity(target)
     else startup() end
 end
 
