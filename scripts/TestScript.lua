@@ -1,0 +1,5 @@
+local entity = console:getBlock():getEntity()
+local pos = console:getBlock():getPos()
+pos:setY(pos:getY() + 1)
+local display = entity:getBlockAt(pos)
+display:setDisplayText("test")
