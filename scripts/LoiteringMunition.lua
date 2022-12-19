@@ -66,7 +66,10 @@ function attack()
         if target:getSector() ~= entity:getSector() then ai:moveToSector(target:getSector()) end
         ai:setTarget(target)
         ai:moveToEntity(target)
-    else startup() end
+    else
+        ai:stop()
+        startup()
+    end
 end
 
 function validTarget()
