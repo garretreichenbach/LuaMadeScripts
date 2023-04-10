@@ -1,5 +1,5 @@
 --- LoiteringMunition.lua
---- Version: 1.2
+--- Version: 1.3
 --- Author: TheDerpGamer
 --- DovTech Corporation
 --- Loitering weapons platform that will stay hidden in an enemy's system until it detects a nearby hostile.
@@ -15,13 +15,21 @@ local entity = console:getBlock():getEntity()
 local reactor = entity:getReactor() -- TODO: Add scanner support?
 local faction = entity:getFaction()
 local ai = entity:getAI()
-local target
+local target = entity
+local lastTime = 0
 
 --// Functions
 function getChannel()
     local channel = console:getChannel(channelName)
     if channel == nil then channel = console:createChannel(channelName, password) end
     return channel
+end
+
+function sleep(n)
+    local currentTime = console:getTime()
+    while console:getTime() < currentTime + n do
+        coroutine.yield()
+    end
 end
 
 function sendMessage(message)
@@ -63,9 +71,11 @@ end
 
 function attack()
     if target ~= nil then
-        if target:getSector() ~= entity:getSector() then ai:moveToSector(target:getSector()) end
-        ai:setTarget(target)
-        ai:moveToEntity(target)
+        ai:setTarget(entity)
+        ai:setActive(true)
+        if target:getSector() ~= entity:getSector() then ai:moveToSector(target:getSector())
+        else ai:moveToPos(target:getPos()) end
+        ai:setActive(false)
     else
         ai:stop()
         startup()
@@ -78,26 +88,22 @@ end
 
 function startup()
     local ownerFaction = getSystemOwner()
-    if(ownerFaction:isEnemy(faction)) then
-        sendMessage("Enemy system detected, starting hide routine.")
+    if(ownerFaction ~= nil and ownerFaction:isEnemy(faction)) then activateStealth() end
+    while(target == nil) do
+        target = searchForTarget()
+        sleep(10)
         activateStealth()
+    end
 
-        while(target == nil) do
-            target = searchForTarget()
-            sleep(10)
-            activateStealth()
+    if(validTarget()) then
+        sendMessage("Target acquired, starting attack routine.")
+        while(validTarget()) do
+            attack()
+            sleep(5)
         end
-
-        if(validTarget()) then
-            sendMessage("Target acquired, starting attack routine.")
-            while(validTarget()) do
-                attack()
-                sleep(10)
-            end
-        else
-            sendMessage("Target lost, restarting search routine.")
-            startup()
-        end
+    else
+        sendMessage("Target lost, restarting search routine.")
+        startup()
     end
 end
 
