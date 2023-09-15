@@ -1,14 +1,16 @@
 --- LoiteringMunition.lua
---- Version: 1.3
+--- Version: 1.4
 --- Author: TheDerpGamer
 --- DovTech Corporation
 --- Loitering weapons platform that will stay hidden in an enemy's system until it detects a nearby hostile.
---- Once it detects a hostile, it will attack the hostile with it's warhead.
+--- Once it detects a hostile, it will attack the hostile with it's warhead. If the self destruct feature is enabled,
+--- place a warhead directly behind the console block and it will be activated 15 seconds after the warhead is launched.
 
 --// Settings
 local channelName = "<channel_name>" -- The name of the channel to read messages from
 local password = "<password>" -- The password used to send messages through the channel
-local maxEngageDistance = 2 -- The maximum distance in sectors the munition will engage targets at.
+local maxEngageDistance = 2 -- The maximum distance in sectors the munition will engage targets at.\
+local selfDestruct = false -- Whether or not the munition will self destruct after it's warhead is launched
 
 --// Variables
 local entity = console:getBlock():getEntity()
@@ -69,13 +71,32 @@ function searchForTarget()
     return nil
 end
 
+function destroy()
+    sendMessage("Self destructing in 15 seconds...")
+    sleep(15)
+    local pos = console:getBlock():getPos()
+    pos:setZ(pos:getZ() + 1)
+    local block = entity:getBlockAt(pos)
+    if block ~= nil then block:activate()
+    else sendMessage("ERROR: No block found at position " .. pos:toString()) end
+end
+
+function inLaunchRange()
+    return target ~= nil and 
+end
+
+function launchWarhead()
+
+end
+
 function attack()
     if target ~= nil then
         ai:setTarget(entity)
         ai:setActive(true)
-        if target:getSector() ~= entity:getSector() then ai:moveToSector(target:getSector())
-        else ai:moveToPos(target:getPos()) end
-        ai:setActive(false)
+        if inLaunchRange() then
+            launchWarhead()
+            if(selfDestruct) then destroy()
+        end
     else
         ai:stop()
         startup()

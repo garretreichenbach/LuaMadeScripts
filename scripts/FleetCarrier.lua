@@ -2,13 +2,13 @@
 --- Version: 1.0
 --- Author: TheDerpGamer
 --- DovTech Corporation
---- Fleet carrier script that launch and manage fleet ships.
+--- Fleet carrier script that constructs and launches fleet ships.
 
 -- Settings
-local channelName = "<channel_name>" -- The name of the channel to read messages from
-local password = "<password>" -- The password used to receive messages through the channel'
+local channelName = "test_channel" -- The name of the channel to read messages from
+local password = "password" -- The password used to receive messages through the channel'
 local shipCount = 10 -- The number of ships to launch
-local shipBaseName = "Fleet Carrier Ship" -- The base name of the ships to launch
+local shipBaseName = "TestDesign" -- The base name of the ships to launch
 
 -- Variables
 local entity = console:getBlock():getEntity()
